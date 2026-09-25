@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>分镜信息表 · 分镜阁 StoryDeck</title>
+  <meta name="description" content="按分镜阁工作台字段整理的可填写信息表：填好故事设定与每格分镜，可导出 Markdown 直接使用。" />
+  <style>
+    :root {
+      --bg: #faf7f1;
+      --surface: #ffffff;
+      --ink: #26221c;
+      --ink-soft: #6d6455;
+      --line: #e6ddcd;
+      --gold: #c8963c;
+      --gold-deep: #a5762a;
+      --gold-soft: #f7ecd8;
+      --danger: #b0402f;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      padding: 24px 16px 80px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header.sheet-head {
+      border-left: 4px solid var(--gold);
+      padding-left: 16px;
+      margin-bottom: 24px;
+    }
+    header.sheet-head h1 {
+      font-family: "Noto Serif SC", serif;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+    header.sheet-head p { color: var(--ink-soft); font-size: 13px; margin-top: 4px; }
+
+    section.card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(60, 45, 20, 0.05);
+    }
+    section.card > h2 {
+      font-family: "Noto Serif SC", serif;
+      font-size: 17px;
+      color: var(--gold-deep);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    section.card > h2 .num {
+      font-size: 12px;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 18px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+    .field label .tag {
+      font-weight: 400; font-size: 11px; color: var(--gold-deep);
+      background: var(--gold-soft); border-radius: 4px; padding: 1px 6px; margin-left: 6px;
+    }
+    input[type="text"], input[type="number"], select, textarea {
+      font: inherit; font-size: 14px;
+      border: 1px solid var(--line); border-radius: 8px;
+      padding: 8px 10px; background: #fffdf9; color: var(--ink);
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold);
+    }
+    textarea { resize: vertical; min-height: 64px; }
+
+    /* 分镜表 */
+    .shot-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .shot-table th {
+      background: var(--gold-soft); color: var(--gold-deep);
+      font-size: 12.5px; font-weight: 700; text-align: left;
+      padding: 8px 10px; border: 1px solid var(--line); white-space: nowrap;
+    }
+    .shot-table td { border: 1px solid var(--line); padding: 0; vertical-align: top; background: #fffdf9; }
+    .shot-table td.idx {
+      text-align: center; vertical-align: middle;
+      font-family: Georgia, serif; font-style: italic; font-weight: 700;
+      color: var(--gold-deep); background: var(--gold-soft); width: 44px; font-size: 14px;
+    }
+    .shot-table textarea {
+      border: none; border-radius: 0; background: transparent;
+      min-height: 58px; padding: 8px 10px;
+    }
+    .shot-table textarea:focus { outline: 2px solid var(--gold); outline-offset: -2px; }
+    .shot-table td.op { width: 40px; text-align: center; vertical-align: middle; background: transparent; }
+    .shot-table td.op button {
+      border: none; background: none; color: #c0b49c; cursor: pointer;
+      font-size: 14px; padding: 6px; border-radius: 6px;
+    }
+    .shot-table td.op button:hover { color: var(--danger); background: #f7e8e4; }
+
+    /* 工具条 */
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin: 4px 0 14px;
+    }
+    .toolbar .spacer { flex: 1; }
+    .btn {
+      font: inherit; font-size: 13.5px; cursor: pointer;
+      border: 1px solid var(--line); background: #fff; color: var(--ink);
+      border-radius: 8px; padding: 8px 16px;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold-deep); }
+    .btn-gold {
+      background: linear-gradient(120deg, var(--gold), #e0b25c);
+      border-color: var(--gold); color: #fff; font-weight: 600;
+    }
+    .btn-gold:hover { color: #fff; filter: brightness(1.05); }
+    .btn-danger { color: var(--danger); }
+    .btn-danger:hover { border-color: var(--danger); color: var(--danger); }
+    #save-state { font-size: 12px; color: var(--ink-soft); }
+    .count-input { display: flex; align-items: center; gap: 8px; }
+    .count-input input { width: 90px; }
+
+    footer.note { font-size: 12px; color: var(--ink-soft); text-align: center; margin-top: 8px; }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar, .shot-table td.op button { display: none; }
+      section.card { box-shadow: none; break-inside: avoid; }
+      .shot-table textarea { min-height: 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="sheet-head">
+      <h1>分镜信息表</h1>
+      <p>按「分镜阁 StoryDeck」工作台字段整理 · 直接填写即可 · 内容自动保存在本机浏览器</p>
+    </header>
+
+    <!-- ============ 01 故事设定 ============ -->
+    <section class="card">
+      <h2><span class="num">01</span>故事设定</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="i-genre">题材模板 <span class="tag">对应网页下拉</span></label>
+          <select id="i-genre">
+            <option>规则怪谈 · 无限流副本</option>
+            <option>民国奇幻 · 深夜当铺</option>
+            <option>悬疑复仇 · 逆袭爽文</option>
+            <option>自定义题材</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="i-style">画面风格 <span class="tag">生图工坊预设</span></label>
+          <select id="i-style">
+            <option>民国奇幻 · 鎏金烛光</option>
+            <option>电影写实 · 冷调悬疑</option>
+            <option>暗黑惊悚 · 高对比</option>
+            <option>国风志怪 · 水墨幻境</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="i-title">故事名 <span class="tag">12 字内</span></label>
+          <input id="i-title" type="text" maxlength="12" placeholder="例：拾遗当铺" />
+        </div>
+        <div class="field">
+          <label for="i-role">主角身份 <span class="tag">12 字内</span></label>
+          <input id="i-role" type="text" maxlength="12" placeholder="例：当铺朝奉" />
+        </div>
+        <div class="field full">
+          <label for="i-premise">副本设定（一句话即可）</label>
+          <textarea id="i-premise" placeholder="例：当铺收的不是物件，是人想不起来的记忆，而我翻遍账本，发现自己早在三十年前当掉了名字。"></textarea>
+        </div>
+        <div class="field">
+          <label for="i-count">分镜数量 <span class="tag">6 – 19 格</span></label>
+          <div class="count-input">
+            <input id="i-count" type="number" min="6" max="19" value="12" />
+            <button class="btn" type="button" id="btn-apply-count">按此数量生成表格</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="i-seed">随机种子 <span class="tag">同种子同构图，可留空</span></label>
+          <input id="i-seed" type="text" inputmode="numeric" placeholder="例：520131，或留空每张随机" />
+        </div>
+        <div class="field full">
+          <label for="i-hook">本集钩子 / 结尾反转（发布时置顶评论用）</label>
+          <textarea id="i-hook" placeholder="例：最后一格发现，直播镜头里站着的才是真正的我。"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 分镜明细 ============ -->
+    <section class="card">
+      <h2><span class="num">02</span>分镜明细 <span style="font-size:12px;color:var(--ink-soft);font-family:'Noto Sans SC',sans-serif;font-weight:400">独白 = 字幕文案；画面描述 = 给生图模型的指令</span></h2>
+      <div class="toolbar">
+        <button class="btn" type="button" id="btn-add-row">＋ 加一格</button>
+        <button class="btn" type="button" id="btn-copy-lines">复制全部独白</button>
+        <button class="btn btn-gold" type="button" id="btn-export-md">导出 Markdown</button>
+        <button class="btn" type="button" id="btn-print">打印 / 存 PDF</button>
+        <span class="spacer"></span>
+        <button class="btn btn-danger" type="button" id="btn-clear">清空全部</button>
+        <span id="save-state">已自动保存</span>
+      </div>
+      <table class="shot-table" id="shot-table">
+        <thead>
+          <tr>
+            <th style="width:44px;text-align:center">格</th>
+            <th style="width:34%">独白（字幕）</th>
+            <th>画面描述（生图指令）</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="shot-body"></tbody>
+      </table>
+    </section>
+
+    <footer class="note">分镜阁 StoryDeck · 信息表 —— 填好后可对照网页逐格粘贴，或直接导出 Markdown 存档。所有内容仅保存在你自己的浏览器中。</footer>
+  </div>
+
+  <script>
+    const STORE_KEY = "storydeck-info-sheet";
+    const $ = (id) => document.getElementById(id);
+    const shotBody = $("shot-body");
+    const pad2 = (n) => String(n).padStart(2, "0");
+
+    function makeRow(i) {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td class="idx">${pad2(i)}</td>` +
+        `<td><textarea data-k="line" placeholder="这一格主角说什么……"></textarea></td>` +
+        `<td><textarea data-k="visual" placeholder="给生图模型：人物 / 场景 / 光线 / 构图……"></textarea></td>` +
+        `<td class="op"><button type="button" title="删除此格">✕</button></td>`;
+      tr.querySelector("button").addEventListener("click", () => {
+        if (shotBody.children.length <= 6) { alert("最少保留 6 格"); return; }
+        tr.remove(); renumber(); save();
+      });
+      tr.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", save));
+      return tr;
+    }
+
+    function renumber() {
+      [...shotBody.children].forEach((tr, i) => { tr.querySelector(".idx").textContent = pad2(i + 1); });
+    }
+
+    function buildRows(n) {
+      n = Math.min(19, Math.max(6, parseInt(n, 10) || 12));
+      while (shotBody.children.length < n) shotBody.appendChild(makeRow(shotBody.children.length + 1));
+      while (shotBody.children.length > n) shotBody.lastChild.remove();
+      renumber();
+    }
+
+    function collect() {
+      const data = {
+        meta: {},
+        shots: [...shotBody.children].map((tr) => {
+          const t = tr.querySelectorAll("textarea");
+          return { line: t[0].value, visual: t[1].value };
+        }),
+      };
+      ["genre", "style", "title", "role", "premise", "seed", "hook"].forEach((k) => { data.meta[k] = $("i-" + k).value; });
+      data.meta.count = shotBody.children.length;
+      return data;
+    }
+
+    let saveTimer = null;
+    function save() {
+      clearTimeout(saveTimer);
+      $("save-state").textContent = "保存中…";
+      saveTimer = setTimeout(() => {
+        localStorage.setItem(STORE_KEY, JSON.stringify(collect()));
+        $("save-state").textContent = "已自动保存 ✓";
+      }, 300);
+    }
+
+    function fill(d) {
+      Object.entries(d.meta || {}).forEach(([k, v]) => {
+        if (k === "count") return;
+        const el = $("i-" + k);
+        if (el) el.value = v;
+      });
+      buildRows((d.meta && d.meta.count) || 12);
+      (d.shots || []).forEach((s, i) => {
+        const tr = shotBody.children[i];
+        if (!tr) return;
+        const t = tr.querySelectorAll("textarea");
+        t[0].value = s.line || ""; t[1].value = s.visual || "";
+      });
+    }
+
+    /* ---------- 导出 ---------- */
+    function toMarkdown() {
+      const d = collect();
+      const L = [];
+      L.push(`# 《${d.meta.title || "未命名"}》分镜信息表`);
+      L.push("");
+      L.push(`- **题材**：${d.meta.genre}`);
+      L.push(`- **主角身份**：${d.meta.role || "—"}`);
+      L.push(`- **副本设定**：${d.meta.premise || "—"}`);
+      L.push(`- **画面风格**：${d.meta.style}`);
+      L.push(`- **随机种子**：${d.meta.seed || "随机"}`);
+      L.push(`- **分镜数量**：${d.shots.length} 格`);
+      if (d.meta.hook) L.push(`- **结尾钩子**：${d.meta.hook}`);
+      L.push("");
+      L.push("| 格 | 独白（字幕） | 画面描述（生图指令） |");
+      L.push("|----|--------------|----------------------|");
+      d.shots.forEach((s, i) => {
+        L.push(`| ${pad2(i + 1)} | ${(s.line || "").replace(/\|/g, "/")} | ${(s.visual || "").replace(/\|/g, "/")} |`);
+      });
+      return L.join("\n");
+    }
+
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    /* ---------- 事件 ---------- */
+    $("btn-apply-count").addEventListener("click", () => { buildRows($("i-count").value); save(); });
+    $("btn-add-row").addEventListener("click", () => {
+      if (shotBody.children.length >= 19) { alert("最多 19 格"); return; }
+      shotBody.appendChild(makeRow(shotBody.children.length + 1));
+      renumber(); save();
+    });
+    $("btn-copy-lines").addEventListener("click", () => {
+      const text = collect().shots.map((s, i) => `${pad2(i + 1)} ${s.line}`).filter((t) => t.trim().length > 2).join("\n");
+      if (!text) { alert("独白还都是空的"); return; }
+      navigator.clipboard.writeText(text).then(() => alert("全部独白已复制到剪贴板"));
+    });
+    $("btn-export-md").addEventListener("click", () => {
+      const title = collect().meta.title || "分镜信息表";
+      download(`${title}-分镜信息表.md`, toMarkdown());
+    });
+    $("btn-print").addEventListener("click", () => window.print());
+    $("btn-clear").addEventListener("click", () => {
+      if (!confirm("确定清空全部内容？此操作不可撤销。")) return;
+      localStorage.removeItem(STORE_KEY);
+      document.querySelectorAll("input, textarea").forEach((el) => { el.value = ""; });
+      buildRows(12); save();
+    });
+    ["genre", "style", "title", "role", "premise", "seed", "hook"].forEach((k) => {
+      $("i-" + k).addEventListener("input", save);
+      $("i-" + k).addEventListener("change", save);
+    });
+
+    /* ---------- 启动：恢复上次填写 ---------- */
+    (function init() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        try { fill(JSON.parse(raw)); } catch (e) { buildRows(12); }
+      } else {
+        buildRows(12);
+      }
+      $("save-state").textContent = "已自动保存 ✓";
+    })();
+  </script>
+</body>
+</html>
