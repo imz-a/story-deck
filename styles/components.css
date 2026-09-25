@@ -11,7 +11,7 @@
   background: rgba(15, 13, 10, 0.82);
   backdrop-filter: blur(12px);
 }
-.brand { display: flex; align-items: baseline; gap: var(--space-2); }
+.brand { display: flex; align-items: baseline; gap: var(--space-2); white-space: nowrap; }
 .brand-name { font-size: var(--text-xl); color: var(--color-text); }
 .brand-en { font-size: var(--text-sm); color: var(--color-muted); letter-spacing: 0.14em; }
 .header-actions { display: flex; gap: var(--space-2); align-items: center; }
@@ -22,6 +22,7 @@
   min-height: 44px; padding: 0 var(--space-4);
   font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500;
   letter-spacing: 0.06em;
+  white-space: nowrap; /* 防止窄屏下按钮文字被压成两行 */
   border-radius: var(--radius-md); border: 1px solid var(--color-border);
   background: var(--color-surface); color: var(--color-text);
   cursor: pointer;
@@ -258,6 +259,7 @@ dialog.settings-dialog::backdrop { background: rgba(5, 4, 3, 0.72); backdrop-fil
   display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
   border: 1px solid var(--color-border); border-radius: 999px;
   padding: 8px 16px; font-size: var(--text-sm); color: var(--color-muted);
+  white-space: nowrap;
   transition: all var(--dur-fast) ease-out; user-select: none;
 }
 .radio-chip input { accent-color: var(--color-accent); }
@@ -292,9 +294,22 @@ dialog.settings-dialog::backdrop { background: rgba(5, 4, 3, 0.72); backdrop-fil
   .workbench { grid-template-columns: 1fr; }
   .preview-bench { grid-template-columns: 1fr; justify-items: center; }
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
+  /* 手机页头只保留品牌 + 接口设置按钮，锚点导航收起（页面本身按 01→02→03 线性滚动） */
+  .header-actions a { display: none; }
+  .site-header { padding: var(--space-2) var(--space-3); }
+  .hero { padding-left: var(--space-3); padding-right: var(--space-3); }
   .stage { padding: var(--space-5) var(--space-3); }
-  .phone-frame { width: min(320px, 86vw); }
+  .stage-head .stage-hint { font-size: var(--text-xs); }
+  .panel { padding: var(--space-3); border-radius: var(--radius-md); }
+  .shot-card { grid-template-columns: 32px 1fr; padding: var(--space-2); }
+  .shot-num { font-size: var(--text-base); padding-top: 6px; }
+  .phone-frame { width: min(320px, calc(100vw - 48px)); }
+  .preview-side { max-width: none; padding: 0 var(--space-3); }
+  dialog.settings-dialog { padding: var(--space-4) var(--space-3); }
+  .hero-actions .btn { flex: 1; }
+}
+@media (max-width: 480px) {
   .site-header { padding: var(--space-3); }
   .brand-en { display: none; }
 }
