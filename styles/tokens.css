@@ -1,0 +1,53 @@
+/* ============================================================
+   分镜阁 StoryDeck — 设计令牌
+   方向：暗夜鎏金 · 电影感（民国奇幻 / 规则怪谈题材美学）
+   主色 60%：暖炭黑表面  /  辅助 30%：暖象牙文字  /  强调 10%：烛光金
+   ============================================================ */
+:root {
+  /* 颜色 */
+  --color-bg: #0f0d0a;
+  --color-bg-deep: #0a0908;
+  --color-surface: #191510;
+  --color-surface-2: #211c14;
+  --color-text: #f2ead9;
+  --color-muted: #a3977f;
+  --color-accent: #d8a94e;
+  --color-accent-strong: #f0c46a;
+  --color-danger: #e0644a;
+  --color-success: #7fbf7a;
+  --color-border: rgba(242, 234, 217, 0.14);
+  --color-border-strong: rgba(216, 169, 78, 0.45);
+
+  /* 字体 */
+  --font-display: "Noto Serif SC", "Cormorant Garamond", serif;
+  --font-latin-display: "Cormorant Garamond", serif;
+  --font-body: "Noto Sans SC", sans-serif;
+
+  /* 字阶（1.25 模块化） */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.563rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.052rem;
+  --text-hero: clamp(2.6rem, 6vw, 4.6rem);
+
+  /* 间距 */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 16px; --space-4: 24px;
+  --space-5: 40px; --space-6: 64px; --space-7: 96px;
+
+  /* 圆角 */
+  --radius-sm: 4px; --radius-md: 10px; --radius-lg: 20px;
+
+  /* 阴影（三级，带环境色） */
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 24px 64px rgba(0, 0, 0, 0.55);
+  --glow-gold: 0 0 32px rgba(216, 169, 78, 0.18);
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms; --dur-base: 320ms; --dur-slow: 640ms;
+}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>分镜阁 StoryDeck · AI 剧情图文工作台</title>
+  <meta name="description" content="把一个故事灵感拆成分镜文案，再用 AI 生成长图，像刷抖音一样预览你的剧情图文。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f0d0a'/%3E%3Ctext x='16' y='23' font-size='18' text-anchor='middle' fill='%23d8a94e' font-family='serif'%3E阁%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+  <!-- ================= 页头 ================= -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-name display">分镜阁</span>
+      <span class="brand-en latin">STORYDECK</span>
+    </div>
+    <nav class="header-actions" aria-label="主导航">
+      <a class="btn btn-ghost btn-sm" href="#stage-script">剧本</a>
+      <a class="btn btn-ghost btn-sm" href="#stage-image">生图</a>
+      <a class="btn btn-ghost btn-sm" href="#stage-preview">预览</a>
+      <button class="btn btn-sm" id="btn-open-settings" type="button">⚙ 接口设置</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= 首屏 ================= -->
+    <section class="hero">
+      <div>
+        <span class="hero-kicker reveal">AI 剧情图文 · 无限流 / 规则怪谈 / 民国奇幻</span>
+        <h1 class="reveal">让一集故事，<br />从文字里<em>长出画面</em></h1>
+        <p class="hero-sub reveal">
+          剧本与生图分开驱动：文案走你的对话模型，画面走你的图像模型——
+          也可以什么都不配，用内置的免费分镜引擎和免密钥生图通道直接开工。
+        </p>
+        <div class="hero-actions reveal">
+          <a class="btn btn-gold" href="#stage-script">开始搭一集分镜</a>
+          <button class="btn" id="btn-hero-settings" type="button">先配置接口</button>
+        </div>
+        <div class="pipeline reveal" aria-label="工作流程">
+          <div class="pipeline-step">
+            <span class="pipeline-num">01</span>
+            <div class="pipeline-title">剧本工坊</div>
+            <div class="pipeline-desc">一句话设定 → 分镜独白与画面描述</div>
+          </div>
+          <div class="pipeline-step">
+            <span class="pipeline-num">02</span>
+            <div class="pipeline-title">生图工坊</div>
+            <div class="pipeline-desc">每个分镜渲染 9:16 电影感画面</div>
+          </div>
+          <div class="pipeline-step">
+            <span class="pipeline-num">03</span>
+            <div class="pipeline-title">预览台</div>
+            <div class="pipeline-desc">竖版翻页预览，一键导出发布</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual reveal" aria-hidden="true">
+        <div class="phone-mini">
+          <div class="mini-glow"></div>
+          <div class="frame-line"></div>
+          <p class="mini-caption">屏幕上出现的那张脸，<br />是我。</p>
+          <span class="mini-badge">图文 · 第 4 集</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 01 剧本工坊 ================= -->
+    <section class="stage" id="stage-script">
+      <div class="stage-head">
+        <span class="stage-index" aria-hidden="true">01</span>
+        <h2 class="stage-title">剧本工坊</h2>
+        <span class="stage-hint">生成后的每一格都可以直接改字——独白是字幕，画面描述是给生图模型的指令。</span>
+      </div>
+      <div class="workbench">
+        <form class="panel" id="script-form">
+          <div class="panel-title">故事设定</div>
+          <div class="field">
+            <label for="f-genre">题材模板</label>
+            <select id="f-genre">
+              <option value="guize">规则怪谈 · 无限流副本</option>
+              <option value="minguo">民国奇幻 · 赌局 / 众生楼风</option>
+              <option value="fuchou">悬疑复仇 · 逆袭爽文</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-title">故事名</label>
+              <input id="f-title" type="text" placeholder="例：众生楼" maxlength="12" />
+            </div>
+            <div class="field">
+              <label for="f-role">主角身份</label>
+              <input id="f-role" type="text" placeholder="例：赌楼荷官" maxlength="12" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-premise">副本设定（一句话即可）</label>
+            <textarea id="f-premise" placeholder="例：赌楼用活人做局，赌我会偷多少颗晶核，而我藏在哪里都被直播。"></textarea>
+          </div>
+          <div class="field">
+            <label for="f-count">分镜数量：<output id="f-count-out">12</output> 格</label>
+            <input id="f-count" type="range" min="6" max="19" value="12" />
+          </div>
+          <div class="field">
+            <label>生成方式</label>
+            <div class="radio-row">
+              <label class="radio-chip"><input type="radio" name="script-mode" value="builtin" checked /> 内置引擎 <span class="chip-tag">免费</span></label>
+              <label class="radio-chip"><input type="radio" name="script-mode" value="api" /> 调用文案 API <span class="chip-tag">需密钥</span></label>
+            </div>
+          </div>
+          <button class="btn btn-gold" type="submit" id="btn-gen-script" style="width:100%">生成这一集的分镜</button>
+        </form>
+
+        <div class="shot-list" id="shot-list">
+          <div class="empty-state" id="shot-empty">
+            <p class="display">还没有分镜</p>
+            <p>在左侧填好设定，选「内置引擎」不配任何 API 也能生成。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 02 生图工坊 ================= -->
+    <section class="stage" id="stage-image">
+      <div class="stage-head">
+        <span class="stage-index" aria-hidden="true">02</span>
+        <h2 class="stage-title">生图工坊</h2>
+        <span class="stage-hint">免密钥通道为公共免费服务（尽力而为，若被限流会自动降级为内置鎏金字幕卡）；想要真正的 AI 画面，可在设置里配置你自己的图像接口。</span>
+      </div>
+      <div class="workbench">
+        <form class="panel" id="image-form">
+          <div class="panel-title">画面风格</div>
+          <div class="field">
+            <label for="f-style">风格预设</label>
+            <select id="f-style">
+              <option value="minguo-fantasy">民国奇幻 · 鎏金烛光</option>
+              <option value="cinematic">电影写实 · 冷调悬疑</option>
+              <option value="noir">暗黑惊悚 · 高对比</option>
+              <option value="guofeng">国风志怪 · 水墨幻境</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>生图通道</label>
+            <div class="radio-row">
+              <label class="radio-chip"><input type="radio" name="image-mode" value="free" checked /> 免密钥通道 <span class="chip-tag">免费+兜底</span></label>
+              <label class="radio-chip"><input type="radio" name="image-mode" value="custom" /> 自建图像接口 <span class="chip-tag">需密钥</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-seed">随机种子（同种子同构图，方便风格统一）</label>
+            <div class="field-row">
+              <input id="f-seed" type="number" min="0" max="999999" placeholder="留空则每张随机" />
+              <button class="btn" type="button" id="btn-roll-seed">掷一次</button>
+            </div>
+          </div>
+          <button class="btn btn-gold" type="submit" id="btn-gen-images" style="width:100%">给全部分镜生图</button>
+          <p class="api-note">提示词 = 画面描述 + 风格预设，竖版 9:16。单张不满意可点该分镜的「重绘」。</p>
+        </form>
+
+        <div class="panel">
+          <div class="panel-title">渲染进度</div>
+          <div class="field" style="margin-bottom:0">
+            <div class="progress-track" style="height:6px;border-radius:999px;background:var(--color-border);overflow:hidden">
+              <div class="progress-fill" id="img-progress" style="height:100%;width:0;background:linear-gradient(90deg,#c8963c,#f0c46a);transition:width var(--dur-base) var(--ease-out)"></div>
+            </div>
+          </div>
+          <p class="api-note" id="img-progress-text">等待开始……</p>
+          <div class="shot-foot" style="margin-top:var(--space-3)">
+            <button class="btn btn-sm" type="button" id="btn-download-all">逐张下载全部成图</button>
+            <button class="btn btn-sm" type="button" id="btn-export-md">导出文案 Markdown</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 03 预览台 ================= -->
+    <section class="stage" id="stage-preview">
+      <div class="stage-head">
+        <span class="stage-index" aria-hidden="true">03</span>
+        <h2 class="stage-title">预览台</h2>
+        <span class="stage-hint">点手机画面或用 ← → 翻页，模拟读者刷到你这一集的体验。</span>
+      </div>
+      <div class="preview-bench">
+        <div class="phone-frame" id="phone-frame" role="button" tabindex="0" aria-label="预览画面，点击翻页">
+          <div class="pf-placeholder" id="pf-placeholder">
+            <span class="display" style="font-size:var(--text-lg)">预览台空置中</span>
+            <span>先生成生图，再来翻页</span>
+          </div>
+          <img id="pf-img" alt="分镜预览" hidden />
+          <p class="phone-caption" id="pf-caption"></p>
+          <span class="phone-page" id="pf-page" hidden>1 / 1</span>
+          <span class="phone-ai-badge">疑似使用了 AI 生成技术</span>
+        </div>
+        <div class="preview-side">
+          <div class="progress-track"><div class="progress-fill" id="preview-progress"></div></div>
+          <p class="preview-tip" id="preview-tip">当前显示第 1 格。</p>
+          <p class="preview-tip">翻页：<span class="kbd">←</span> <span class="kbd">→</span> 或点击画面。字幕与分镜里改的独白实时同步。</p>
+          <div class="shot-foot">
+            <button class="btn btn-sm" type="button" id="btn-copy-captions">复制全部独白文案</button>
+            <button class="btn btn-sm" type="button" id="btn-download-current">下载当前图</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= 设置弹层 ================= -->
+  <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+    <div class="dialog-head">
+      <h2 id="settings-title">接口设置</h2>
+      <button class="btn btn-sm btn-ghost" type="button" id="btn-close-settings">关闭 ✕</button>
+    </div>
+
+    <fieldset class="api-group">
+      <legend>文案 API · 对话模型</legend>
+      <p class="api-note">任何 OpenAI 兼容接口均可（DeepSeek / 硅基流动 / 智谱等）。密钥只保存在你浏览器的 localStorage，不会上传。</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="s-text-url">接口地址 Base URL</label>
+          <input id="s-text-url" type="url" placeholder="https://api.deepseek.com/v1" />
+        </div>
+        <div class="field">
+          <label for="s-text-model">模型名</label>
+          <input id="s-text-model" type="text" placeholder="deepseek-chat" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-text-key">API Key</label>
+        <input id="s-text-key" type="password" placeholder="sk-…" autocomplete="off" />
+      </div>
+    </fieldset>
+
+    <fieldset class="api-group">
+      <legend>生图 API · 图像模型</legend>
+      <div class="radio-row">
+        <label class="radio-chip"><input type="radio" name="img-provider" value="free" checked /> 免密钥通道 <span class="chip-tag">Pollinations</span></label>
+        <label class="radio-chip"><input type="radio" name="img-provider" value="custom" /> 自建 OpenAI 兼容接口</label>
+      </div>
+      <div id="custom-img-fields">
+        <div class="field-row">
+          <div class="field">
+            <label for="s-img-url">接口地址 Base URL</label>
+            <input id="s-img-url" type="url" placeholder="https://api.siliconflow.cn/v1" />
+          </div>
+          <div class="field">
+            <label for="s-img-model">模型名</label>
+            <input id="s-img-model" type="text" placeholder="Kwai-Kolors/Kolors" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="s-img-key">API Key</label>
+          <input id="s-img-key" type="password" placeholder="sk-…" autocomplete="off" />
+        </div>
+        <p class="api-note">注意：自建接口需允许浏览器跨域（CORS），否则请求会被拦截。</p>
+      </div>
+    </fieldset>
+
+    <div class="dialog-foot">
+      <button class="btn" type="button" id="btn-clear-settings">清空配置</button>
+      <button class="btn btn-gold" type="button" id="btn-save-settings">保存设置</button>
+    </div>
+  </dialog>
+
+  <div class="toast-wrap" id="toast-wrap" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <p>分镜阁 <span class="latin">StoryDeck</span> — 剧本与画面分开驱动，灵感与成片一页之隔。</p>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
